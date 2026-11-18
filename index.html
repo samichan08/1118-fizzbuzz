@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FizzBuzz 1〜50</title>
+  <style>
+    :root {
+      --bg-color: #0f172a;
+      --card-bg: #1e293b;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --border-color: #334155;
+      
+      --color-fizz: #38bdf8;
+      --bg-fizz: rgba(56, 189, 248, 0.12);
+      --border-fizz: rgba(56, 189, 248, 0.35);
+
+      --color-buzz: #34d399;
+      --bg-buzz: rgba(52, 211, 153, 0.12);
+      --border-buzz: rgba(52, 211, 153, 0.35);
+
+      --color-fizzbuzz: #f43f5e;
+      --bg-fizzbuzz: linear-gradient(135deg, rgba(244, 63, 94, 0.18), rgba(168, 85, 247, 0.22));
+      --border-fizzbuzz: rgba(244, 63, 94, 0.5);
+
+      --color-number: #cbd5e1;
+      --bg-number: rgba(255, 255, 255, 0.03);
+      --border-number: rgba(255, 255, 255, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Hiragino Sans", "BIZ UDPGothic", sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      min-height: 100vh;
+      padding: 2.5rem 1.25rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .container {
+      max-width: 960px;
+      width: 100%;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    h1 {
+      font-size: 2.25rem;
+      font-weight: 800;
+      letter-spacing: -0.025em;
+      margin-bottom: 0.5rem;
+      background: linear-gradient(to right, #38bdf8, #818cf8, #f43f5e);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    p.subtitle {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+    }
+
+    /* 凡例 / ルール */
+    .rules {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.75rem;
+      margin-top: 1rem;
+    }
+
+    .rule-tag {
+      font-size: 0.8rem;
+      padding: 0.25rem 0.65rem;
+      border-radius: 9999px;
+      border: 1px solid var(--border-color);
+      background-color: rgba(255, 255, 255, 0.03);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+
+    .dot.fizz { background-color: var(--color-fizz); }
+    .dot.buzz { background-color: var(--color-buzz); }
+    .dot.fizzbuzz { background-color: var(--color-fizzbuzz); }
+
+    /* フィルターバー */
+    .filter-bar {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.5rem;
+      margin-bottom: 2rem;
+      padding: 0.5rem;
+      background-color: rgba(30, 41, 59, 0.7);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      backdrop-filter: blur(8px);
+    }
+
+    .filter-btn {
+      appearance: none;
+      border: 1px solid transparent;
+      background: transparent;
+      color: var(--text-muted);
+      font-size: 0.875rem;
+      font-weight: 600;
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .filter-btn:hover {
+      color: var(--text-main);
+      background-color: rgba(255, 255, 255, 0.05);
+    }
+
+    .filter-btn.active {
+      background-color: #334155;
+      color: #fff;
+      border-color: #475569;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    }
+
+    .filter-btn .count-badge {
+      font-size: 0.75rem;
+      padding: 0.1rem 0.45rem;
+      border-radius: 9999px;
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    /* グリッドレイアウト */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+      gap: 0.85rem;
+      width: 100%;
+    }
+
+    /* カード */
+    .card {
+      background-color: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 1rem 0.75rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 110px;
+      position: relative;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+    }
+
+    .card .num-badge {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      align-self: flex-start;
+      line-height: 1;
+    }
+
+    .card .val {
+      font-size: 1.35rem;
+      font-weight: 800;
+      text-align: center;
+      margin: auto 0;
+    }
+
+    .card .type-label {
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      padding: 0.15rem 0.5rem;
+      border-radius: 4px;
+      margin-top: 0.25rem;
+    }
+
+    /* タイプ別スタイル */
+    .card.is-number {
+      background: var(--bg-number);
+      border-color: var(--border-number);
+    }
+    .card.is-number .val {
+      color: var(--color-number);
+      font-size: 1.5rem;
+      font-weight: 600;
+    }
+    .card.is-number .type-label {
+      display: none;
+    }
+
+    .card.is-fizz {
+      background: var(--bg-fizz);
+      border-color: var(--border-fizz);
+    }
+    .card.is-fizz .val {
+      color: var(--color-fizz);
+    }
+    .card.is-fizz .type-label {
+      background-color: rgba(56, 189, 248, 0.2);
+      color: var(--color-fizz);
+    }
+
+    .card.is-buzz {
+      background: var(--bg-buzz);
+      border-color: var(--border-buzz);
+    }
+    .card.is-buzz .val {
+      color: var(--color-buzz);
+    }
+    .card.is-buzz .type-label {
+      background-color: rgba(52, 211, 153, 0.2);
+      color: var(--color-buzz);
+    }
+
+    .card.is-fizzbuzz {
+      background: var(--bg-fizzbuzz);
+      border-color: var(--border-fizzbuzz);
+      box-shadow: 0 0 15px rgba(244, 63, 94, 0.2);
+    }
+    .card.is-fizzbuzz .val {
+      background: linear-gradient(135deg, #f43f5e, #c084fc);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      font-size: 1.45rem;
+    }
+    .card.is-fizzbuzz .type-label {
+      background: linear-gradient(135deg, rgba(244, 63, 94, 0.3), rgba(192, 132, 252, 0.3));
+      color: #fca5a5;
+    }
+
+    /* 非表示（フィルター時） */
+    .card.hidden {
+      display: none;
+    }
+
+    /* フッター */
+    footer {
+      margin-top: 3rem;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.8rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>FizzBuzz Explorer</h1>
+      <p class="subtitle">1 から 50 までの FizzBuzz 一覧</p>
+      <div class="rules">
+        <span class="rule-tag"><span class="dot fizz"></span>Fizz: 3の倍数</span>
+        <span class="rule-tag"><span class="dot buzz"></span>Buzz: 5の倍数</span>
+        <span class="rule-tag"><span class="dot fizzbuzz"></span>FizzBuzz: 15の倍数</span>
+      </div>
+    </header>
+
+    <!-- フィルターボタン -->
+    <div class="filter-bar" id="filterBar">
+      <button class="filter-btn active" data-filter="all">すべて <span class="count-badge" id="count-all">0</span></button>
+      <button class="filter-btn" data-filter="fizzbuzz">FizzBuzz <span class="count-badge" id="count-fizzbuzz">0</span></button>
+      <button class="filter-btn" data-filter="fizz">Fizz <span class="count-badge" id="count-fizz">0</span></button>
+      <button class="filter-btn" data-filter="buzz">Buzz <span class="count-badge" id="count-buzz">0</span></button>
+      <button class="filter-btn" data-filter="number">数値のみ <span class="count-badge" id="count-number">0</span></button>
+    </div>
+
+    <!-- カード一覧 -->
+    <main class="grid" id="fizzbuzzGrid"></main>
+
+    <footer>
+      1〜50 FizzBuzz Web Application
+    </footer>
+  </div>
+
+  <script>
+    (function () {
+      const TOTAL_COUNT = 50;
+      const grid = document.getElementById('fizzbuzzGrid');
+      const filterBar = document.getElementById('filterBar');
+
+      // 件数カウンター
+      const counts = {
+        all: TOTAL_COUNT,
+        fizzbuzz: 0,
+        fizz: 0,
+        buzz: 0,
+        number: 0
+      };
+
+      // 1〜50の要素を生成
+      const fragment = document.createDocumentFragment();
+
+      for (let i = 1; i <= TOTAL_COUNT; i++) {
+        let text = i.toString();
+        let type = 'number';
+        let label = '';
+
+        if (i % 15 === 0) {
+          text = 'FizzBuzz';
+          type = 'fizzbuzz';
+          label = '3 & 5';
+          counts.fizzbuzz++;
+        } else if (i % 3 === 0) {
+          text = 'Fizz';
+          type = 'fizz';
+          label = '3の倍数';
+          counts.fizz++;
+        } else if (i % 5 === 0) {
+          text = 'Buzz';
+          type = 'buzz';
+          label = '5の倍数';
+          counts.buzz++;
+        } else {
+          counts.number++;
+        }
+
+        const card = document.createElement('div');
+        card.className = `card is-${type}`;
+        card.dataset.type = type;
+
+        card.innerHTML = `
+          <div class="num-badge">#${i}</div>
+          <div class="val">${text}</div>
+          <div class="type-label">${label}</div>
+        `;
+
+        fragment.appendChild(card);
+      }
+
+      grid.appendChild(fragment);
+
+      // カウンターの表示更新
+      for (const [key, value] of Object.entries(counts)) {
+        const badge = document.getElementById(`count-${key}`);
+        if (badge) badge.textContent = value;
+      }
+
+      // フィルター機能
+      filterBar.addEventListener('click', (e) => {
+        const btn = e.target.closest('.filter-btn');
+        if (!btn) return;
+
+        // アクティブボタンの切り替え
+        filterBar.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        const filter = btn.dataset.filter;
+        const cards = grid.querySelectorAll('.card');
+
+        cards.forEach(card => {
+          if (filter === 'all' || card.dataset.type === filter) {
+            card.classList.remove('hidden');
+          } else {
+            card.classList.add('hidden');
+          }
+        });
+      });
+    })();
+  </script>
+</body>
+</html>
